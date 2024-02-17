@@ -34,7 +34,14 @@ public class RobotContainer {
 
   /* Driver Buttons */
   private final JoystickButton intake = new JoystickButton(driver, XboxController.Button.kY.value);
+  private final JoystickButton shootButton = new JoystickButton(driver, XboxController.Button.kB.value);
+  private final JoystickButton shooterUp = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
+  private final JoystickButton shooterDown = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
 
+
+
+
+  public final Shooter m_Shooter;
   /* Subsystems */
   public final IntakeSubsystem s_IntakeSubsystem;
   /**
@@ -42,6 +49,7 @@ public class RobotContainer {
    */
   public RobotContainer() { 
     s_IntakeSubsystem = new IntakeSubsystem();
+    m_Shooter = new Shooter();
 
     
     // Configure the button bindings
@@ -58,13 +66,19 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     /* Driver Buttons */
-    intake.onTrue(new InstantCommand(() -> s_IntakeSubsystem.intake(SmartDashboard.getNumber("Intake Speed", 0.30))));
-
+    intake.onTrue(new InstantCommand(() -> s_IntakeSubsystem.intake(SmartDashboard.getNumber("Intake Speed", 0.60))));
     intake.onFalse(new InstantCommand(() -> s_IntakeSubsystem.intake(0.0)));
+    shootButton.whileTrue(new InstantCommand(m_Shooter::Shoot));
+    shootButton.onFalse(new InstantCommand(m_Shooter::StopShoot));
+    shooterUp.onTrue(new InstantCommand(() -> m_Shooter.ShooterActuator(SmartDashboard.getNumber("Linear Actuator Speed", 0.3))));
+    shooterDown.onTrue(new InstantCommand(() -> m_Shooter.ShooterActuator(-SmartDashboard.getNumber("Linear Actuator Speed", 0.3))));
+    shooterUp.onFalse(new InstantCommand(m_Shooter::StopActuator));
+    shooterDown.onFalse(new InstantCommand(m_Shooter::StopActuator));
 
+  
   }
 
-  /**
+  /*
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
